@@ -1,16 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Model Demo</title>
+    <title>Garbage Classification</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
 </head>
 <body>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-    <script>
-        async function loadModel() {
-            const model = await tf.loadLayersModel('https://dl.dropboxusercontent.com/s/uss7jgn63bfmz9p47y3es/classify_model.h5');
-            // Use the model for prediction or other tasks
-        }
-        loadModel();
-    </script>
+
+<h1>Garbage Classification</h1>
+
+<button onclick="takePhoto()">Take Photo</button>
+<div id="result"></div>
+
+<script>
+    async function takePhoto() {
+        // Implement the JavaScript code to capture a photo using the webcam and preprocess the image
+        // ...
+
+        // Load the H5 model file from the cloud storage service
+        const model = await tf.loadLayersModel('https://dl.dropboxusercontent.com/s/uss7jgn63bfmz9p47y3es/classify_model.h5');
+
+        // Implement the JavaScript code to classify the garbage and display the result
+        // ...
+    }
+</script>
+
 </body>
 </html>
