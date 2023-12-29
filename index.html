@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Model Demo</title>
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script>
+        async function loadModel() {
+            const model = await tf.loadLayersModel('URL_TO_YOUR_H5_MODEL_FILE');
+            // Use the model for prediction or other tasks
+        }
+        loadModel();
+    </script>
+</body>
+</html>
