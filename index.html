@@ -13,8 +13,91 @@
 
 <script>
     async function takePhoto() {
-        // Implement the JavaScript code to capture a photo using the webcam and preprocess the image
+        // Function to capture a photo using the webcam
+async function capturePhoto() {
+    const videoElement = document.createElement('video');
+    videoElement.style.display = 'none'; // Hide the video element
+
+    document.body.appendChild(videoElement);
+
+    // Get media stream from the webcam
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+
+    // Assign the media stream to the video element
+    videoElement.srcObject = stream;
+
+    // Play the video stream
+    await videoElement.play();
+
+    // Create a canvas element to capture the photo
+    const canvasElement = document.createElement('canvas');
+    canvasElement.width = videoElement.videoWidth;
+    canvasElement.height = videoElement.videoHeight;
+    const ctx = canvasElement.getContext('2d');
+
+    // Draw the video frame onto the canvas
+    ctx.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+
+    // Stop the video stream
+    stream.getVideoTracks()[0].stop();
+
+    // Remove the video element from the DOM
+    videoElement.remove();
+
+    // Return the canvas element
+    return canvasElement;
+}
+
+// Function to preprocess the image
+function preprocessImage(canvasElement) {
+    const img = new Image();
+    img.src = canvasElement.toDataURL('image/jpeg');
+
+    const resizedCanvas = document.createElement('canvas');
+    resizedCanvas.width = 256;
+    resizedCanvas.height = 256;
+    const resizedCtx = resizedCanvas.getContext('2d');
+
+    resizedCtx.drawImage(img, 0, 0, 256, 256);
+
+    const imgArray = new Float32Array(256 * 256 * 3); // Assuming RGB image
+    const imgData = resizedCtx.getImageData(0, 0, 256, 256).data;
+    let idx = 0;
+    for (let i = 0; i < imgData.length; i += 4) {
+        imgArray[idx++] = imgData[i] / 255.0;
+        imgArray[idx++] = imgData[i + 1] / 255.0;
+        imgArray[idx++] = imgData[i + 2] / 255.0;
+    }
+
+    return imgArray;
+}
+
+// Example usage
+async function processPhoto() {
+    try {
+        const canvasElement = await capturePhoto();
+        const imgArray = preprocessImage(canvasElement);
+
+        // Now you can use imgArray to feed into your TensorFlow.js model for prediction
         // ...
+    } catch (error) {
+        console.error('Error capturing photo:', error);
+    }
+}
+
+async function processPhoto() {
+        try {
+            const canvasElement = await capturePhoto();
+            const imgArray = preprocessImage(canvasElement);
+
+            // Now you can use imgArray to feed into your TensorFlow.js model for prediction
+            // ...
+        } catch (error) {
+            console.error('Error capturing photo:', error);
+        }
+    }
+</script>
+
 
         // Load the H5 model file from the cloud storage service
         const model = await tf.loadLayersModel('https://dl.dropboxusercontent.com/s/uss7jgn63bfmz9p47y3es/classify_model.h5');
