@@ -19,7 +19,8 @@
             const imgArray = preprocessImage(canvasElement);
 
             // Display the captured photo
-            document.getElementById('capturedPhoto').src = canvasElement.toDataURL('image/jpeg');
+            const imgDataUrl = canvasElement.toDataURL('image/jpeg');
+            document.getElementById('capturedPhoto').src = imgDataUrl;
             document.getElementById('capturedPhoto').style.display = 'block';
 
             // Load the H5 model file from Google Drive
