@@ -13,7 +13,7 @@
 <img id="capturedPhoto" style="display:none; width:256px; height:256px;" />
 
 <script>
-    // Utility function to capture a photo from the webcam
+    // Function to capture a photo from the webcam
     async function capturePhoto() {
         const videoElement = document.createElement('video');
         videoElement.style.display = 'none';
@@ -35,7 +35,7 @@
         return canvasElement;
     }
 
-    // Utility function to preprocess the captured image
+    // Function to preprocess the captured image
     function preprocessImage(canvasElement) {
         const ctx = canvasElement.getContext('2d');
         const imgData = ctx.getImageData(0, 0, 256, 256).data;
@@ -52,6 +52,15 @@
     // Function to classify the image using TensorFlow.js
     async function classifyImage(imgArray) {
         console.log("Classifying image...");
+        
+        // Fetch the config.json
+        const configUrl = 'https://github.com/VishnuEcoClim/modeltest/blob/main/config.json';
+        const response = await fetch(configUrl);
+        const configData = await response.json();
+
+        // You can now use configData in your classification logic if needed
+        console.log(configData);
+
         const modelUrl = 'https://drive.google.com/uc?id=1Z0dWAK9XOqZTQAANjIYHYDBI7G5Rcya3';
         const model = await tf.loadLayersModel(modelUrl);
         const prediction = model.predict(tf.tensor([imgArray]).reshape([1, 256, 256, 3]));
