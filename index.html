@@ -20,6 +20,7 @@
 
             // Display the captured photo
             const imgDataUrl = canvasElement.toDataURL('image/jpeg');
+            console.log(imgDataUrl);  // Log the data URL to the console
             document.getElementById('capturedPhoto').src = imgDataUrl;
             document.getElementById('capturedPhoto').style.display = 'block';
 
