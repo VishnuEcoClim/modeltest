@@ -10,12 +10,17 @@
 
 <button onclick="processPhoto()">Take Photo</button>
 <div id="result"></div>
+<img id="capturedPhoto" style="display:none; width:256px; height:256px;" />
 
 <script>
     async function processPhoto() {
         try {
             const canvasElement = await capturePhoto();
             const imgArray = preprocessImage(canvasElement);
+
+            // Display the captured photo
+            document.getElementById('capturedPhoto').src = canvasElement.toDataURL('image/jpeg');
+            document.getElementById('capturedPhoto').style.display = 'block';
 
             // Load the H5 model file from Google Drive
             const modelUrl = 'https://drive.google.com/uc?id=1Z0dWAK9XOqZTQAANjIYHYDBI7G5Rcya3';
