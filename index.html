@@ -13,37 +13,10 @@
 <img id="capturedPhoto" style="display:none; width:256px; height:256px;" />
 
 <script>
-    async function processPhoto() {
-        try {
-            const canvasElement = await capturePhoto();
-            const imgArray = preprocessImage(canvasElement);
-
-            // Display the captured photo
-            const imgDataUrl = canvasElement.toDataURL('image/jpeg');
-            console.log(imgDataUrl);  // Log the data URL to the console
-            document.getElementById('capturedPhoto').src = imgDataUrl;
-            document.getElementById('capturedPhoto').style.display = 'block';
-
-            // Load the H5 model file from Google Drive
-            const modelUrl = 'https://drive.google.com/uc?id=1Z0dWAK9XOqZTQAANjIYHYDBI7G5Rcya3';
-            const model = await tf.loadLayersModel(modelUrl);
-
-            // Implement the JavaScript code to classify the garbage and display the result
-            const prediction = model.predict(tf.tensor(imgArray).reshape([1, 256, 256, 3]));
-            const classLabels = ["cardboard", "glass", "metal", "paper", "plastic", "trash"];
-            const predictedClassIndex = tf.argMax(prediction, 1).dataSync()[0];
-            const classificationResult = classLabels[predictedClassIndex];
-            document.getElementById('result').innerText = `The item in the photo is: ${classificationResult}`;
-
-        } catch (error) {
-            console.error('Error capturing photo:', error);
-        }
-    }
-
+    // Utility function to capture a photo from the webcam
     async function capturePhoto() {
         const videoElement = document.createElement('video');
         videoElement.style.display = 'none';
-
         document.body.appendChild(videoElement);
 
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -62,6 +35,7 @@
         return canvasElement;
     }
 
+    // Utility function to preprocess the captured image
     function preprocessImage(canvasElement) {
         const img = new Image();
         img.src = canvasElement.toDataURL('image/jpeg');
@@ -70,7 +44,6 @@
         resizedCanvas.width = 256;
         resizedCanvas.height = 256;
         const resizedCtx = resizedCanvas.getContext('2d');
-
         resizedCtx.drawImage(img, 0, 0, 256, 256);
 
         const imgArray = new Float32Array(256 * 256 * 3);
@@ -83,6 +56,31 @@
         }
 
         return imgArray;
+    }
+
+    // Primary function to capture, preprocess, and classify the photo
+    async function processPhoto() {
+        try {
+            const canvasElement = await capturePhoto();
+            const imgArray = preprocessImage(canvasElement);
+
+            // Display the captured photo
+            const imgDataUrl = canvasElement.toDataURL('image/jpeg');
+            document.getElementById('capturedPhoto').src = imgDataUrl;
+            document.getElementById('capturedPhoto').style.display = 'block';
+
+            // Load and use the model
+            const modelUrl = 'https://drive.google.com/uc?id=1Z0dWAK9XOqZTQAANjIYHYDBI7G5Rcya3';
+            const model = await tf.loadLayersModel(modelUrl);
+            const prediction = model.predict(tf.tensor(imgArray).reshape([1, 256, 256, 3]));
+            const classLabels = ["cardboard", "glass", "metal", "paper", "plastic", "trash"];
+            const predictedClassIndex = tf.argMax(prediction, 1).dataSync()[0];
+            const classificationResult = classLabels[predictedClassIndex];
+            document.getElementById('result').innerText = `The item in the photo is: ${classificationResult}`;
+
+        } catch (error) {
+            console.error('Error processing photo:', error);
+        }
     }
 </script>
 
