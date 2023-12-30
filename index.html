@@ -37,51 +37,45 @@
 
     // Utility function to preprocess the captured image
     function preprocessImage(canvasElement) {
-        const img = new Image();
-        img.onload = function() {
-            const resizedCanvas = document.createElement('canvas');
-            resizedCanvas.width = 256;
-            resizedCanvas.height = 256;
-            const resizedCtx = resizedCanvas.getContext('2d');
-            resizedCtx.drawImage(img, 0, 0, 256, 256);
-
-            const imgData = resizedCtx.getImageData(0, 0, 256, 256).data;
-            const imgArray = new Float32Array(256 * 256 * 3);
-            let idx = 0;
-            for (let i = 0; i < imgData.length; i += 4) {
-                imgArray[idx++] = imgData[i] / 255.0;
-                imgArray[idx++] = imgData[i + 1] / 255.0;
-                imgArray[idx++] = imgData[i + 2] / 255.0;
-            }
-
-            // Set the processed image data back to the canvas for display
-            canvasElement.getContext('2d').putImageData(new ImageData(imgData, 256, 256), 0, 0);
-            classifyImage(imgArray); // Call the classification function here
-        };
-        img.src = canvasElement.toDataURL('image/jpeg');
+        const ctx = canvasElement.getContext('2d');
+        const imgData = ctx.getImageData(0, 0, 256, 256).data;
+        const imgArray = new Float32Array(256 * 256 * 3);
+        let idx = 0;
+        for (let i = 0; i < imgData.length; i += 4) {
+            imgArray[idx++] = imgData[i] / 255.0;
+            imgArray[idx++] = imgData[i + 1] / 255.0;
+            imgArray[idx++] = imgData[i + 2] / 255.0;
+        }
+        return imgArray;
     }
 
     // Function to classify the image using TensorFlow.js
     async function classifyImage(imgArray) {
+        console.log("Classifying image...");
         const modelUrl = 'https://drive.google.com/uc?id=1Z0dWAK9XOqZTQAANjIYHYDBI7G5Rcya3';
         const model = await tf.loadLayersModel(modelUrl);
-        const prediction = model.predict(tf.tensor(imgArray).reshape([1, 256, 256, 3]));
+        const prediction = model.predict(tf.tensor([imgArray]).reshape([1, 256, 256, 3]));
         const classLabels = ["cardboard", "glass", "metal", "paper", "plastic", "trash"];
         const predictedClassIndex = tf.argMax(prediction, 1).dataSync()[0];
         const classificationResult = classLabels[predictedClassIndex];
         document.getElementById('result').innerText = `The item in the photo is: ${classificationResult}`;
+        console.log("Classification complete.");
     }
 
     // Primary function to capture and preprocess the photo
     async function processPhoto() {
         try {
+            console.log("Capturing photo...");
             const canvasElement = await capturePhoto();
-            preprocessImage(canvasElement);
+            const imgArray = preprocessImage(canvasElement);
 
             // Display the captured photo
             const imgDataUrl = canvasElement.toDataURL('image/jpeg');
             document.getElementById('capturedPhoto').src = imgDataUrl;
             document.getElementById('capturedPhoto').style.display = 'block';
+
+            console.log("Starting classification...");
+            await classifyImage(imgArray);
 
         } catch (error) {
             console.error('Error processing photo:', error);
